@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e0d0b6ae.css",
+    "main.js": "/static/js/main.de69a834.js",
+    "static/js/453.625b6c3f.chunk.js": "/static/js/453.625b6c3f.chunk.js",
+    "static/media/iRAP_Logo.png": "/static/media/iRAP_Logo.d3a79be193469044eb6b.png",
+    "index.html": "/index.html",
+    "main.e0d0b6ae.css.map": "/static/css/main.e0d0b6ae.css.map",
+    "main.de69a834.js.map": "/static/js/main.de69a834.js.map",
+    "453.625b6c3f.chunk.js.map": "/static/js/453.625b6c3f.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e0d0b6ae.css",
+    "static/js/main.de69a834.js"
+  ]
+}
