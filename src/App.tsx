@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { ChangeEvent,KeyboardEvent, Component } from 'react';
 import { Button, Col, Row } from 'react-bootstrap';
 import logo from './logo.svg';
 import './App.css';
@@ -8,14 +8,18 @@ import iRAPLogo from './resources/iRAP_Logo.png';
 import ROSLIB from 'roslib';
 import ImageViewer from './components/ImageViewer';
 import GamepadComponent from './components/GamepadAPI';
-
+import { config, env } from 'process';
 
 interface IProps {
 
 }
 interface IState {
   Button_A_Flag: boolean
-  Button_A_Value: number
+  A_Value: number
+  B_value: number
+
+  A_ROS_Value: number
+  B_ROS_Value: number
   readROSInt16: number
   ros: ROSLIB.Ros
   didMounted: boolean
@@ -32,21 +36,23 @@ class App extends Component<IProps, IState> {
 
     this.state = {
       readROSInt16: 0,
-      ros: initialROS('ws://0.0.0.0:9090'),
+      ros: initialROS('ws://10.42.2.100:9090'),
       Button_A_Flag: false,
-      Button_A_Value: 0,
+      A_Value: 0,
+      B_value: 0,
+      A_ROS_Value: 0,
+      B_ROS_Value: 0,
       didMounted: false,
     }
   }
 
   onButtonAClickHandle = () => {
     this.setState({
-      Button_A_Value: this.state.Button_A_Value + 1,
       Button_A_Flag: !this.state.Button_A_Flag
     })
 
     const { ros } = this.state;
-    this.PublishInt16(ros, "/gui/buttonCommand", this.state.Button_A_Value)
+    this.PublishInt16(ros, "/gui/buttonCommand", this.state.A_Value)
     console.log("onButtonClickHandle : ", this.state.Button_A_Flag)
   }
 
@@ -69,7 +75,7 @@ class App extends Component<IProps, IState> {
         data: number,
       };
 
-      this.setState({ readROSInt16: messageResponse.data });
+      this.setState({ A_Value: messageResponse.data });
     });
 
   }
@@ -95,7 +101,7 @@ class App extends Component<IProps, IState> {
 
   onROSConnection = () => {
     console.log("connected !")
-    this.SubscribeInt16(this.state.ros, '/gui/readInt16')
+    this.SubscribeInt16(this.state.ros, '/a_value')
   }
 
   onROSError = () => {
@@ -118,6 +124,38 @@ class App extends Component<IProps, IState> {
       this.state.ros.close()
     }
   }
+
+  handleInputBChange = (event: ChangeEvent<HTMLInputElement>) => {
+    // event.target
+    if(! isNaN(Number(event.target.value)))
+    {
+      this.setState({
+        B_value: Number(event.target.value)
+      })
+    }
+    // console.log(event.target.value)
+    
+  }
+
+  handleInputBKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
+    // console.log(event.key)
+
+    if (event.key === 'Enter') {
+      // this.setState({
+      //   A_ROS_Value: this.state.A_Value
+      // })
+      const { ros } = this.state;
+      this.PublishInt16(ros, "/b_value", this.state.B_value)
+      console.log("ROS_B" ,this.state.B_value)
+    }
+
+    
+    // const { ros } = this.state;
+    // this.PublishInt16(ros, "/A_value", this.state.A_ROS_Value)
+    // console.log("onButtonClickHandle : ", this.state.A_ROS_Value)
+  };
+
+
 
 
 
@@ -143,16 +181,20 @@ class App extends Component<IProps, IState> {
 
           <Col>
             <div className='col d-flex justify-content-center'>
-              <Button onClick={this.onButtonBClickHandle}>Press B</Button>
+              <label>
+                Value A:
+                <input type="text" value={this.state.A_Value}></input>
+              </label>
             </div>
           </Col>
 
           <Col>
-            <div className='col d-flex justify-content-center'>Value A : {this.state.Button_A_Value}</div>
-          </Col>
-
-          <Col>
-            <div className='col d-flex justify-content-center'>Value B : </div>
+            <div className='col d-flex justify-content-center'>
+              <label>
+                Value B:
+                <input type="text" value={this.state.B_value} onChange={this.handleInputBChange} onKeyUp={this.handleInputBKeyPress}></input>
+              </label>
+            </div>
           </Col>
         </Row>
       </div>
